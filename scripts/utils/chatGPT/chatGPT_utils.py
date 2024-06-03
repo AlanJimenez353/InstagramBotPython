@@ -1,12 +1,27 @@
-import openai
+from openai import OpenAI
+from dotenv import load_dotenv
+import os
 
-def get_fun_facts(api_key, n=10):
-    openai.api_key = api_key
-    prompt = "Dame 10 datos curiosos"
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=150
+
+# Carga las variables de entorno desde el archivo .env
+load_dotenv()
+
+# Variables OpenAI
+api_key = os.getenv("OPENAI_API_KEY")
+client= OpenAI(api_key=api_key)
+
+def get_facts(n=3):
+    completion = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+      messages=[
+            {"role": "system", "content": "You are an expert in scientific advancements."},
+            {"role": "user", "content": f"Dame {n} datos de avances científicos en una lista numerada."}
+        ]
     )
-    facts = response.choices[0].text.strip().split('\n')
-    return facts[:n]
+    
+     # Imprimir la estructura del objeto 'completion' para debug
+    print(completion)
+    # Acceder al mensaje y extraer el contenido de forma segura
+    content = completion.choices[0].message.content if hasattr(completion.choices[0].message, 'content') else "No content available"
+    facts = [line.strip() for line in content.split('\n') if line.strip()]
+    return facts
