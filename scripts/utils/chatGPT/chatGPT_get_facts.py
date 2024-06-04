@@ -8,8 +8,11 @@ load_dotenv()
 
 # Variables OpenAI
 api_key = os.getenv("OPENAI_API_KEY")
+print(api_key)
 client= OpenAI(api_key=api_key)
 
+
+#Metodo para traer N cantidad de datos cientificos
 def get_facts(n=3):
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -25,3 +28,4 @@ def get_facts(n=3):
     content = completion.choices[0].message.content if hasattr(completion.choices[0].message, 'content') else "No content available"
     facts = [line.strip() for line in content.split('\n') if line.strip()]
     return facts
+
