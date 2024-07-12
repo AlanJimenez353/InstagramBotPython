@@ -1,16 +1,19 @@
-1. Configuración del Entorno:
+# News-to-Video Automation Script
 
-Instalar dependencias necesarias:  pip install openai moviepy instabot python-dotenv gtts
+This Python script automates the process of creating videos from news articles, incorporating AI-generated images, subtitles, and synthesized audio to produce engaging multimedia content.
 
+## Features
 
-2. Configurar Variables de Entorno:
+- **Keyword Extraction**: Extracts key phrases from news articles using ChatGPT.
+- **AI Image Generation**: Generates relevant images for each keyword using DALL-E.
+- **Subtitle Creation**: Splits the article into manageable parts for subtitles based on its length.
+- **Audio Synthesis**: Utilizes ElevenLabs API to create natural-sounding voiceovers timed with subtitles.
 
-CHATGPT_API_KEY=tu_clave_de_chatgpt
-INSTAGRAM_USERNAME=tu_usuario_de_instagram
-INSTAGRAM_PASSWORD=tu_contraseña_de_instagram
+## Getting Started
 
+### Prerequisites
 
-3. Ejecutar el Script:
+Before running the script, make sure you have Python installed on your system. Then, install the following packages:
 
-python main.py
-
+```bash
+pip install openai moviepy instabot python-dotenv gtts
