@@ -37,7 +37,7 @@ for fact in facts:
     total_images_downloaded = 0
     previous_alternates = set()
     for keyword in keywords:
-        keyword = clean_filename(keyword)
+        keyword = clean_filename(keyword) 
         print("Processing keyword:", keyword)  # Para debug
         
         downloaded, image_count = get_images_from_pexels(keyword, pexels_api_key, image_dir, fact_id, image_count, required_images=3)

@@ -13,19 +13,16 @@ client= OpenAI(api_key=api_key)
 
 
 #Metodo para traer N cantidad de datos cientificos
-def get_facts(n=3):
+def get_facts(api_key, n=3):
+    client = OpenAI(api_key=api_key)
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
-      messages=[
-            {"role": "system", "content": "You are an expert in scientific advancements."},
-            {"role": "user", "content": f"Dame {n} datos de avances científicos en una lista numerada."}
+        messages=[
+            {"role": "system", "content": "You are an expert in nature."},
+            {"role": "user", "content": f"Give me {n} interesting facts about nature."}
         ]
     )
-    
-     # Imprimir la estructura del objeto 'completion' para debug
-    print(completion)
-    # Acceder al mensaje y extraer el contenido de forma segura
+
     content = completion.choices[0].message.content if hasattr(completion.choices[0].message, 'content') else "No content available"
     facts = [line.strip() for line in content.split('\n') if line.strip()]
     return facts
-

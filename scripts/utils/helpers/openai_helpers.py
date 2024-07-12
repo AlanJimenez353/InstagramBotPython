@@ -27,8 +27,9 @@ def get_image_query(fact, num_keywords=2):
 
         keywords = []
         for line in raw_keywords:
-            words = re.split('[,|]', line.replace("1.", "").replace("2.", "").replace('"', ''))
-            keywords.extend([word.strip() for word in words if len(word.strip().split()) == 1])
+            # Eliminar prefijos numéricos y palabras irrelevantes
+            words = re.split('[,|]', line.replace("1.", "").replace("2.", "").replace("Keywords:", "").replace('"', ''))
+            keywords.extend([word.strip() for word in words if word.strip() and not word.lower() in ["keywords", "keyword"]])
         
         print("Processed keywords:", keywords)  # Para debug
 
@@ -44,17 +45,16 @@ def get_image_query(fact, num_keywords=2):
 
 
 #Esta funcion obtiene 3 datos cientificos en una lista enumerada
-#TODO recibir por parametro el tipo de dato (Cientifico/tecnologico/naturaleza/politica/medios) para generar distintos tipos de facts
 def get_facts(api_key, n=3):
     client = OpenAI(api_key=api_key)
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "You are an expert in scientific advancements."},
-            {"role": "user", "content": f"Dame {n} datos de avances científicos en una lista numerada."}
+            {"role": "system", "content": "You are an expert in nature."},
+            {"role": "user", "content": f"Give me {n} interesting facts about nature."}
         ]
     )
-    
+
     content = completion.choices[0].message.content if hasattr(completion.choices[0].message, 'content') else "No content available"
     facts = [line.strip() for line in content.split('\n') if line.strip()]
     return facts
@@ -62,7 +62,11 @@ def get_facts(api_key, n=3):
 
 #Este metodo se utiliza en get_images_from_pexels en el caso de que alguna de las keywords no tenga resultados al llamar a la API 
 # De esta forma el script nunca fallara y siempre se generaran la cantidad de imagenes necesarias
-def get_alternate_keyword(keyword, previous_alternates=set()):
+def get_alternate_keyword(keyword, previous_alternates=set(), max_attempts=5):
+    if max_attempts <= 0:
+        print("Maximum attempts reached for finding alternate keywords.")
+        return None
+    
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -70,14 +74,16 @@ def get_alternate_keyword(keyword, previous_alternates=set()):
             {"role": "user", "content": f"Provide an alternative single-word keyword for: '{keyword}'"}
         ]
     )
-
+    
     if completion.choices and hasattr(completion.choices[0].message, 'content'):
         alternate_keyword = completion.choices[0].message.content.strip()
         if alternate_keyword in previous_alternates:
             print(f"Alternate keyword '{alternate_keyword}' is a duplicate. Trying again.")
-            return get_alternate_keyword(keyword, previous_alternates)
-        print("Alternate keyword:", alternate_keyword)  # Para debug
-        return alternate_keyword
+            return get_alternate_keyword(keyword, previous_alternates, max_attempts - 1)
+        else:
+            previous_alternates.add(alternate_keyword)
+            print("Alternate keyword:", alternate_keyword)  # Para debug
+            return alternate_keyword
     else:
         print("Warning: No valid content found for alternate keyword.")
         return None
